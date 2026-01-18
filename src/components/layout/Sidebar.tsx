@@ -45,17 +45,16 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
 
   return (
     <aside
-      className="h-screen flex-shrink-0 bg-surface-500 flex flex-col overflow-x-visible overflow-y-auto transition-[width] duration-300 ease-in-out relative"
+      className="h-screen flex-shrink-0 bg-surface-500 flex flex-col overflow-visible transition-[width] duration-300 ease-in-out relative"
       style={{ width }}
     >
-      {/* Logo + Toggle — Figma: sem divider; Label/Large 18/24 600; brand/700 ícone; botão branco, seta icon-default */}
+      {/* Logo — logo-full.svg (aberta), logo-icon.svg (fechada) */}
       <div className="relative flex items-center justify-between gap-space-8 px-space-16 py-space-24 min-h-[72px]">
-        <div className="flex items-center gap-space-8 min-w-0">
-          <IconLogo className="flex-shrink-0 text-brand-700 w-size-24 h-size-24" />
-          {isExpanded && (
-            <span className="text-label-large font-label text-neutral-1100 truncate">
-              Mycash+
-            </span>
+        <div className="flex items-center min-w-0">
+          {isExpanded ? (
+            <img src="/logo-full.svg" alt="Mycash+" className="flex-shrink-0 h-6 w-auto" />
+          ) : (
+            <img src="/logo-icon.svg" alt="" className="flex-shrink-0 h-6 w-auto" aria-hidden="true" />
           )}
         </div>
         <button
@@ -68,8 +67,8 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
         </button>
       </div>
 
-      {/* Nav — Figma 2005:2698: shape/16, space/8+12; ativo bg secondary-900, ícone brand-600, texto neutral-0; inativo neutral-600 */}
-      <nav className="flex-1 py-space-16 px-space-12 flex flex-col gap-space-4">
+      {/* Nav — Figma 2005:2698; min-h-0 + overflow-y-auto para rolagem interna (evita overflow no aside que cortaria o botão) */}
+      <nav className="flex-1 min-h-0 overflow-y-auto py-space-16 px-space-12 flex flex-col gap-space-4">
         {navItems.map(({ to, label, icon }) => (
           <NavLink
             key={to}
@@ -113,19 +112,19 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
         ))}
       </nav>
 
-      {/* User — Figma 2006:2776: layout vertical (avatar → username → email); space-16 avatar/text, space-4 entre textos; Label/Medium, Paragraph/Small */}
+      {/* User — Figma 2006:2776: layout vertical; avatar 36px (size ~32–36); space-16 avatar/text; space-8 entre textos; Label/Medium 16, Paragraph/Small 14 */}
       <div className={`relative p-space-16 flex ${isExpanded ? 'flex-col items-stretch' : 'justify-center'}`}>
         <Link
           to={ROUTES.PERFIL}
-          className={`no-underline transition-colors rounded-shape-16 hover:bg-neutral-200 ${isExpanded ? 'flex flex-col items-start gap-space-16 w-full' : 'flex w-10 h-10 items-center justify-center rounded-full'}`}
+          className={`no-underline transition-colors rounded-shape-16 hover:bg-neutral-200 ${isExpanded ? 'flex flex-col items-start gap-space-16 w-full' : 'flex w-9 h-9 items-center justify-center rounded-full'}`}
           onMouseEnter={() => !isExpanded && showTooltip('Perfil')}
           onMouseLeave={hideTooltip}
         >
-          <div className="w-10 h-10 rounded-full bg-neutral-600 flex-shrink-0 flex items-center justify-center overflow-hidden">
-            <IconUser className="w-5 h-5 text-neutral-0" />
+          <div className="w-9 h-9 rounded-full bg-neutral-600 flex-shrink-0 flex items-center justify-center overflow-hidden">
+            <IconUser className="w-4 h-4 text-neutral-0" />
           </div>
           {isExpanded && (
-            <div className="flex flex-col gap-space-4 min-w-0 w-full">
+            <div className="flex flex-col gap-space-8 min-w-0 w-full">
               <span className="text-label-medium font-label text-neutral-1100 truncate">username</span>
               <span className="text-paragraph-small font-normal text-neutral-600 truncate">username@email.com</span>
             </div>
@@ -141,14 +140,6 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
         )}
       </div>
     </aside>
-  );
-}
-
-function IconLogo({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-    </svg>
   );
 }
 
