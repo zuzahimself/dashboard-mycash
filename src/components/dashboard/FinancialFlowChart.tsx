@@ -54,9 +54,9 @@ interface FinancialFlowChartProps {
 
 export function FinancialFlowChart({ data = getMockData() }: FinancialFlowChartProps) {
   return (
-    <article className="rounded-shape-16 bg-surface-500 border border-neutral-300 p-space-16 md:p-space-24">
+    <article className="flex h-full min-h-0 flex-col rounded-shape-16 border border-neutral-300 bg-surface-500 p-space-16 md:p-space-24">
       {/* Título "Fluxo Financeiro" + ícone e legenda */}
-      <div className="flex flex-wrap items-center justify-between gap-space-12 mb-space-16">
+      <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-space-12 mb-space-16">
         <div className="flex items-center gap-space-8">
           <span className="flex items-center justify-center w-9 h-9 text-icon-default">
             <IconChart className="w-5 h-5" />
@@ -75,11 +75,8 @@ export function FinancialFlowChart({ data = getMockData() }: FinancialFlowChartP
         </div>
       </div>
 
-      {/* Gráfico: 300px altura, 100% largura; grid horizontal tracejado */}
-      <div
-        className="w-full min-w-0 overflow-visible"
-        style={{ height: CHART_HEIGHT }}
-      >
+      {/* Gráfico: flex-1 para preencher a altura do card e igualar ao Próximas despesas */}
+      <div className="min-h-0 flex-1 w-full overflow-visible" style={{ minHeight: CHART_HEIGHT }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}

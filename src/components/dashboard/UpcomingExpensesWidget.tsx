@@ -75,7 +75,7 @@ export function UpcomingExpensesWidget() {
   );
 
   return (
-    <div className="rounded-2xl border border-neutral-300 bg-surface-500 p-space-16 md:p-space-24">
+    <div className="h-full min-h-0 rounded-2xl border border-neutral-300 bg-surface-500 p-space-16 md:p-space-24">
       {/* Header: ícone carteira 20px, título, botão + 40px */}
       <div className="flex items-center justify-between gap-space-12 mb-space-16">
         <div className="flex items-center gap-space-8">

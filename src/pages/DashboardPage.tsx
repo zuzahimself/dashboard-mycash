@@ -2,7 +2,7 @@ import { CreditCardsWidget, DashboardHeader, ExpensesByCategoryCarousel, Financi
 
 export function DashboardPage() {
   return (
-    <main className="w-full px-4 md:px-6 lg:px-8 pt-8">
+    <main className="w-full px-4 pb-8 pt-8 md:px-6 lg:px-8">
       <DashboardHeader />
 
       {/* Topo: Carousel + Summary | Cartões & Contas — items-stretch para a coluna esquerda ter altura e SummaryCards (flex-1) preencher */}
@@ -16,12 +16,12 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Chart (Fluxo financeiro) ao lado de Próximas despesas */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
-        <div className="min-w-0">
+      {/* Chart (Fluxo financeiro) ao lado de Próximas despesas — items-stretch para mesma altura */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch">
+        <div className="min-h-0 min-w-0 h-full">
           <FinancialFlowChart />
         </div>
-        <div className="min-w-0">
+        <div className="min-h-0 min-w-0 h-full">
           <UpcomingExpensesWidget />
         </div>
       </div>
