@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useFinance } from '@/contexts';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { DateRange, TransactionTypeFilter } from '@/contexts';
+import { AddMemberModal } from './AddMemberModal';
 
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
@@ -18,9 +19,10 @@ function formatPeriod(range: DateRange): string {
 
 interface DashboardHeaderProps {
   onNovaTransacao?: () => void;
+  onMemberAdded?: () => void;
 }
 
-export function DashboardHeader({ onNovaTransacao }: DashboardHeaderProps) {
+export function DashboardHeader({ onNovaTransacao, onMemberAdded }: DashboardHeaderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const {
     searchText,
@@ -171,7 +173,11 @@ export function DashboardHeader({ onNovaTransacao }: DashboardHeaderProps) {
       {addMemberOpen && (
         <AddMemberModal
           onClose={() => setAddMemberOpen(false)}
-          onAdd={(data) => { addFamilyMember(data); setAddMemberOpen(false); }}
+          onAdd={(data) => {
+            addFamilyMember({ name: data.name, role: data.role, avatarUrl: data.avatarUrl, monthlyIncome: data.monthlyIncome });
+            setAddMemberOpen(false);
+          }}
+          onSuccess={onMemberAdded}
         />
       )}
     </header>
@@ -351,56 +357,6 @@ function MonthBlock({
             {d ? d.slice(8, 10) : ''}
           </button>
         ))}
-      </div>
-    </div>
-  );
-}
-
-// --- AddMemberModal ---
-function AddMemberModal({
-  onClose,
-  onAdd,
-}: { onClose: () => void; onAdd: (d: { name: string; role: string; email?: string; monthlyIncome: number }) => void }) {
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [email, setEmail] = useState('');
-  const [monthlyIncome, setMonthlyIncome] = useState('');
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const n = name.trim();
-    const r = role.trim();
-    const income = parseFloat(String(monthlyIncome).replace(/\./g, '').replace(',', '.')) || 0;
-    if (n && r) onAdd({ name: n, role: r, email: email.trim() || undefined, monthlyIncome: income });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-secondary-900/60" onClick={onClose} aria-hidden="true" />
-      <div className="relative bg-surface-500 rounded-shape-16 shadow-xl p-space-24 w-full max-w-md" role="dialog" aria-modal="true" aria-label="Adicionar membro">
-        <h3 className="text-heading-xsmall font-heading text-neutral-1100 mb-space-16">Adicionar membro</h3>
-        <form onSubmit={submit} className="flex flex-col gap-space-12">
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Nome</span>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8" />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Função (ex: Pai, Mãe)</span>
-            <input type="text" value={role} onChange={(e) => setRole(e.target.value)} required className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8" />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">E-mail (opcional)</span>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8" />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Renda mensal (R$)</span>
-            <input type="text" inputMode="numeric" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} placeholder="0" className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8" />
-          </label>
-          <div className="flex gap-space-8 justify-end mt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-paragraph-small text-neutral-600">Cancelar</button>
-            <button type="submit" className="px-4 py-2 text-label-small font-label text-neutral-0 bg-secondary-900 rounded-shape-16 hover:bg-neutral-1100">Adicionar</button>
-          </div>
-        </form>
       </div>
     </div>
   );

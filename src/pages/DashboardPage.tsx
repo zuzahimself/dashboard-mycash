@@ -17,7 +17,10 @@ export function DashboardPage() {
 
   return (
     <main className="w-full px-4 pb-8 pt-8 md:px-6 lg:px-8">
-      <DashboardHeader onNovaTransacao={() => setNewTxOpen(true)} />
+      <DashboardHeader
+        onNovaTransacao={() => setNewTxOpen(true)}
+        onMemberAdded={() => setToast('Membro adicionado com sucesso!')}
+      />
 
       {/* Topo: Carousel + Summary | Cartões & Contas — items-stretch para a coluna esquerda ter altura e SummaryCards (flex-1) preencher */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch">

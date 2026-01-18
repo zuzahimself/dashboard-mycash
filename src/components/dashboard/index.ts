@@ -10,3 +10,4 @@ export { CreditCardsWidget } from './CreditCardsWidget';
 export { UpcomingExpensesWidget } from './UpcomingExpensesWidget';
 export { TransactionsTable } from './TransactionsTable';
 export { NewTransactionModalFull } from './NewTransactionModalFull';
+export { AddMemberModal, type AddMemberFormData } from './AddMemberModal';
