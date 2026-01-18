@@ -3,3 +3,6 @@ export { IncomeCard } from './IncomeCard';
 export { ExpenseCard } from './ExpenseCard';
 export { SummaryCards } from './SummaryCards';
 export { DashboardHeader } from './DashboardHeader';
+export { CategoryDonutCard, CATEGORY_RING_COLORS } from './CategoryDonutCard';
+export { ExpensesByCategoryCarousel } from './ExpensesByCategoryCarousel';
+export { FinancialFlowChart, type FinancialFlowPoint } from './FinancialFlowChart';

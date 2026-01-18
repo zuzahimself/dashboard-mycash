@@ -1,4 +1,4 @@
-import { DashboardHeader, SummaryCards } from '@/components/dashboard';
+import { DashboardHeader, ExpensesByCategoryCarousel, FinancialFlowChart, SummaryCards } from '@/components/dashboard';
 
 export function DashboardPage() {
   return (
@@ -6,6 +6,12 @@ export function DashboardPage() {
       <DashboardHeader />
       <div className="mt-6">
         <SummaryCards />
+      </div>
+      <div className="mt-6">
+        <ExpensesByCategoryCarousel />
+      </div>
+      <div className="mt-6">
+        <FinancialFlowChart />
       </div>
     </main>
   );
