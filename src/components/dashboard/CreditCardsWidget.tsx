@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useFinance } from '@/contexts';
 import type { CreditCard, CreditCardTheme } from '@/types';
+import { AddAccountCardModal } from './AddAccountCardModal';
+import { CardDetailsModal } from './CardDetailsModal';
 
 const CARDS_PER_PAGE = 3;
 const SWIPE_THRESHOLD = 50;
@@ -21,8 +23,13 @@ function formatCurrency(value: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-export function CreditCardsWidget() {
-  const { creditCards, familyMembers, addCreditCard, deleteCreditCard } = useFinance();
+interface CreditCardsWidgetProps {
+  onAccountCardAdded?: () => void;
+  onAddExpense?: (accountId: string) => void;
+}
+
+export function CreditCardsWidget({ onAccountCardAdded, onAddExpense }: CreditCardsWidgetProps) {
+  const { creditCards, familyMembers, addCreditCard, addBankAccount } = useFinance();
   const [newModalOpen, setNewModalOpen] = useState(false);
   const [detailsCard, setDetailsCard] = useState<CreditCard | null>(null);
   const [page, setPage] = useState(0);
@@ -101,18 +108,21 @@ export function CreditCardsWidget() {
       </div>
 
       {newModalOpen && (
-        <NewCardModal
+        <AddAccountCardModal
           familyMembers={familyMembers}
+          addBankAccount={addBankAccount}
+          addCreditCard={addCreditCard}
           onClose={() => setNewModalOpen(false)}
-          onAdd={(d) => { addCreditCard(d); setNewModalOpen(false); }}
+          onSuccess={onAccountCardAdded}
+          defaultType="card"
         />
       )}
       {detailsCard && (
         <CardDetailsModal
           card={detailsCard}
-          familyMembers={familyMembers}
           onClose={() => setDetailsCard(null)}
-          onDelete={() => { deleteCreditCard(detailsCard.id); setDetailsCard(null); }}
+          onAddExpense={onAddExpense ? () => onAddExpense(detailsCard.id) : undefined}
+          onEditCard={() => setDetailsCard(null)}
         />
       )}
     </div>
@@ -149,206 +159,6 @@ function CreditCardRow({ card, onPress }: { card: CreditCard; onPress: () => voi
       {/* Linha 3: data de vencimento */}
       <p className="text-paragraph-small text-neutral-600">Vence dia {card.dueDay}</p>
     </button>
-  );
-}
-
-function NewCardModal({
-  familyMembers,
-  onClose,
-  onAdd,
-}: {
-  familyMembers: { id: string; name: string }[];
-  onClose: () => void;
-  onAdd: (d: {
-    name: string;
-    holderId: string;
-    closingDay: number;
-    dueDay: number;
-    limit: number;
-    currentBill: number;
-    theme: CreditCardTheme;
-    lastDigits?: string;
-  }) => void;
-}) {
-  const [name, setName] = useState('');
-  const [holderId, setHolderId] = useState(familyMembers[0]?.id ?? '');
-  const [closingDay, setClosingDay] = useState(15);
-  const [dueDay, setDueDay] = useState(22);
-  const [limit, setLimit] = useState('');
-  const [currentBill, setCurrentBill] = useState('');
-  const [theme, setTheme] = useState<CreditCardTheme>('black');
-  const [lastDigits, setLastDigits] = useState('');
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const l = parseFloat(String(limit).replace(/\./g, '').replace(',', '.')) || 0;
-    const b = parseFloat(String(currentBill).replace(/\./g, '').replace(',', '.')) || 0;
-    if (name.trim() && holderId) {
-      onAdd({
-        name: name.trim(),
-        holderId,
-        closingDay: Math.min(31, Math.max(1, closingDay)),
-        dueDay: Math.min(31, Math.max(1, dueDay)),
-        limit: l,
-        currentBill: b,
-        theme,
-        lastDigits: lastDigits.replace(/\D/g, '').slice(-4) || undefined,
-      });
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-secondary-900/60" onClick={onClose} aria-hidden />
-      <div
-        className="relative bg-surface-500 rounded-shape-16 shadow-xl p-space-24 w-full max-w-md max-h-[90vh] overflow-y-auto"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Novo cartão"
-      >
-        <h3 className="text-heading-xsmall font-heading text-neutral-1100 mb-space-16">Novo cartão</h3>
-        <form onSubmit={submit} className="flex flex-col gap-space-12">
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Nome / Banco</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8 text-paragraph-medium"
-            />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Titular</span>
-            <select
-              value={holderId}
-              onChange={(e) => setHolderId(e.target.value)}
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-            >
-              {familyMembers.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </label>
-          <div className="grid grid-cols-2 gap-space-12">
-            <label className="flex flex-col gap-space-4">
-              <span className="text-label-small text-neutral-1100">Fechamento (dia)</span>
-              <input
-                type="number"
-                min={1}
-                max={31}
-                value={closingDay}
-                onChange={(e) => setClosingDay(parseInt(e.target.value, 10) || 1)}
-                className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-              />
-            </label>
-            <label className="flex flex-col gap-space-4">
-              <span className="text-label-small text-neutral-1100">Vencimento (dia)</span>
-              <input
-                type="number"
-                min={1}
-                max={31}
-                value={dueDay}
-                onChange={(e) => setDueDay(parseInt(e.target.value, 10) || 1)}
-                className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-              />
-            </label>
-          </div>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Limite (R$)</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-              placeholder="0"
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-            />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Fatura atual (R$)</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={currentBill}
-              onChange={(e) => setCurrentBill(e.target.value)}
-              placeholder="0"
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-            />
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Tema</span>
-            <select
-              value={theme}
-              onChange={(e) => setTheme(e.target.value as CreditCardTheme)}
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-            >
-              <option value="black">Preto</option>
-              <option value="lime">Verde-limão</option>
-              <option value="white">Branco</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-space-4">
-            <span className="text-label-small text-neutral-1100">Últimos 4 dígitos (opcional)</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              value={lastDigits}
-              onChange={(e) => setLastDigits(e.target.value.replace(/\D/g, ''))}
-              placeholder="1234"
-              className="rounded-shape-16 border border-neutral-300 px-space-12 py-space-8"
-            />
-          </label>
-          <div className="flex gap-space-8 justify-end mt-space-8">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-paragraph-small text-neutral-600">Cancelar</button>
-            <button type="submit" className="px-4 py-2 text-label-small font-label text-neutral-0 bg-secondary-900 rounded-shape-16 hover:bg-neutral-1100">Adicionar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-function CardDetailsModal({
-  card,
-  familyMembers,
-  onClose,
-  onDelete,
-}: { card: CreditCard; familyMembers: { id: string; name: string }[]; onClose: () => void; onDelete: () => void }) {
-  const holder = familyMembers.find((m) => m.id === card.holderId);
-  const usage = card.limit > 0 ? Math.round((card.currentBill / card.limit) * 100) : 0;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-secondary-900/60" onClick={onClose} aria-hidden />
-      <div
-        className="relative bg-surface-500 rounded-shape-16 shadow-xl p-space-24 w-full max-w-sm"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Detalhes do cartão"
-      >
-        <h3 className="text-heading-xsmall font-heading text-neutral-1100 mb-space-16">{card.name}</h3>
-        <div className="flex flex-col gap-space-8">
-          {holder && <p className="text-paragraph-small text-neutral-600">Titular: {holder.name}</p>}
-          <p className="text-paragraph-small text-neutral-600">Fatura atual: <strong className="text-neutral-1100">{formatCurrency(card.currentBill)}</strong></p>
-          <p className="text-paragraph-small text-neutral-600">Limite: {formatCurrency(card.limit)}</p>
-          <p className="text-paragraph-small text-neutral-600">Uso: {usage}%</p>
-          <p className="text-paragraph-small text-neutral-600">Fechamento: dia {card.closingDay} · Vencimento: dia {card.dueDay}</p>
-          {card.lastDigits && <p className="text-paragraph-small text-neutral-600">•••• {card.lastDigits}</p>}
-        </div>
-        <div className="flex gap-space-8 justify-end mt-space-24">
-          <button
-            type="button"
-            onClick={onDelete}
-            className="px-4 py-2 text-label-small font-label text-red-600 hover:bg-red-300/30 rounded-shape-16"
-          >
-            Excluir
-          </button>
-          <button type="button" onClick={onClose} className="px-4 py-2 text-label-small font-label text-neutral-0 bg-secondary-900 rounded-shape-16 hover:bg-neutral-1100">Fechar</button>
-        </div>
-      </div>
-    </div>
   );
 }
 

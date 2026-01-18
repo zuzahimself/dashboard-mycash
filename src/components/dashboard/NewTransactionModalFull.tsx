@@ -13,9 +13,11 @@ function parseCurrency(v: string): number {
 interface NewTransactionModalFullProps {
   onClose: () => void;
   onSuccess: () => void;
+  /** Quando definido, pré-preenche conta/cartão e força tipo Despesa (ex.: ao clicar em Adicionar Despesa no modal do cartão). */
+  initialAccountId?: string;
 }
 
-export function NewTransactionModalFull({ onClose, onSuccess }: NewTransactionModalFullProps) {
+export function NewTransactionModalFull({ onClose, onSuccess, initialAccountId }: NewTransactionModalFullProps) {
   const { addTransaction, bankAccounts, creditCards, familyMembers } = useFinance();
 
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -24,7 +26,7 @@ export function NewTransactionModalFull({ onClose, onSuccess }: NewTransactionMo
   const [category, setCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [accountId, setAccountId] = useState(() => bankAccounts[0]?.id || creditCards[0]?.id || '');
+  const [accountId, setAccountId] = useState(() => initialAccountId || bankAccounts[0]?.id || creditCards[0]?.id || '');
   const [installments, setInstallments] = useState(1);
   const [isRecurring, setIsRecurring] = useState(false);
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));

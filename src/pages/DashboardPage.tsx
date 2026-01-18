@@ -3,6 +3,7 @@ import { CreditCardsWidget, DashboardHeader, ExpensesByCategoryCarousel, Financi
 
 export function DashboardPage() {
   const [newTxOpen, setNewTxOpen] = useState(false);
+  const [addExpenseForAccountId, setAddExpenseForAccountId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,7 +30,10 @@ export function DashboardPage() {
           <SummaryCards />
         </div>
         <div className="min-w-0">
-          <CreditCardsWidget />
+          <CreditCardsWidget
+            onAccountCardAdded={() => setToast('Conta/Cartão adicionado com sucesso!')}
+            onAddExpense={(id) => { setAddExpenseForAccountId(id); setNewTxOpen(true); }}
+          />
         </div>
       </div>
 
@@ -50,8 +54,9 @@ export function DashboardPage() {
 
       {newTxOpen && (
         <NewTransactionModalFull
-          onClose={() => setNewTxOpen(false)}
+          onClose={() => { setNewTxOpen(false); setAddExpenseForAccountId(null); }}
           onSuccess={onTxSuccess}
+          initialAccountId={addExpenseForAccountId ?? undefined}
         />
       )}
 

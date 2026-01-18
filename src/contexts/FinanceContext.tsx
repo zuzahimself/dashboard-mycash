@@ -150,6 +150,7 @@ interface FinanceContextValue {
   deleteFamilyMember: (id: string) => void;
   // Derivadas (aplicam filtros)
   getFilteredTransactions: () => Transaction[];
+  clearAllData: () => void;
   calculateTotalBalance: () => number;
   calculateIncomeForPeriod: () => number;
   calculateExpensesForPeriod: () => number;
@@ -221,6 +222,18 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   }, []);
   const deleteFamilyMember = useCallback((id: string) => {
     setFamilyMembers((prev) => prev.filter((x) => x.id !== id));
+  }, []);
+
+  const clearAllData = useCallback(() => {
+    setTransactions([]);
+    setGoals([]);
+    setCreditCards([]);
+    setBankAccounts([]);
+    setFamilyMembers([]);
+    setSelectedMember(null);
+    setDateRange(getDefaultDateRange());
+    setTransactionType('all');
+    setSearchText('');
   }, []);
 
   // --- Derivadas (aplicam filtros) ---
@@ -326,6 +339,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       updateFamilyMember,
       deleteFamilyMember,
       getFilteredTransactions,
+      clearAllData,
       calculateTotalBalance,
       calculateIncomeForPeriod,
       calculateExpensesForPeriod,
@@ -360,6 +374,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       updateFamilyMember,
       deleteFamilyMember,
       getFilteredTransactions,
+      clearAllData,
       calculateTotalBalance,
       calculateIncomeForPeriod,
       calculateExpensesForPeriod,

@@ -3,6 +3,7 @@ import { useFinance } from '@/contexts';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { DateRange, TransactionTypeFilter } from '@/contexts';
 import { AddMemberModal } from './AddMemberModal';
+import { FiltersMobileModal } from './FiltersMobileModal';
 
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
@@ -96,9 +97,7 @@ export function DashboardHeader({ onNovaTransacao, onMemberAdded }: DashboardHea
               <FilterContent value={transactionType} onChange={setTransactionType} />
             </div>
           ) : (
-            <FilterModal onClose={() => setFilterOpen(false)}>
-              <FilterContent value={transactionType} onChange={(v) => { setTransactionType(v); setFilterOpen(false); }} />
-            </FilterModal>
+            <FiltersMobileModal onClose={() => setFilterOpen(false)} />
           )
         )}
       </div>
@@ -207,18 +206,6 @@ function FilterContent({ value, onChange }: { value: TransactionTypeFilter; onCh
             <span className="text-paragraph-small text-neutral-1100">{l}</span>
           </label>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function FilterModal({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end md:justify-center">
-      <div className="absolute inset-0 bg-secondary-900/60" onClick={onClose} aria-hidden="true" />
-      <div className="relative bg-surface-500 rounded-t-2xl md:rounded-shape-16 md:mx-auto md:max-w-sm p-space-24 animate-slide-up" role="dialog" aria-modal="true" aria-label="Filtros">
-        {children}
-        <button type="button" onClick={onClose} className="mt-4 w-full py-2 text-label-medium text-neutral-600">Fechar</button>
       </div>
     </div>
   );

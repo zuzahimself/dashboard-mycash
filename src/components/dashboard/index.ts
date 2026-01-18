@@ -9,5 +9,9 @@ export { FinancialFlowChart, type FinancialFlowPoint } from './FinancialFlowChar
 export { CreditCardsWidget } from './CreditCardsWidget';
 export { UpcomingExpensesWidget } from './UpcomingExpensesWidget';
 export { TransactionsTable } from './TransactionsTable';
+export { TransactionsView } from './TransactionsView';
 export { NewTransactionModalFull } from './NewTransactionModalFull';
 export { AddMemberModal, type AddMemberFormData } from './AddMemberModal';
+export { AddAccountCardModal } from './AddAccountCardModal';
+export { CardDetailsModal, type CardDetailsModalProps } from './CardDetailsModal';
+export { CardsView } from './CardsView';
