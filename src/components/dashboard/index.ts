@@ -9,3 +9,4 @@ export { FinancialFlowChart, type FinancialFlowPoint } from './FinancialFlowChar
 export { CreditCardsWidget } from './CreditCardsWidget';
 export { UpcomingExpensesWidget } from './UpcomingExpensesWidget';
 export { TransactionsTable } from './TransactionsTable';
+export { NewTransactionModalFull } from './NewTransactionModalFull';
