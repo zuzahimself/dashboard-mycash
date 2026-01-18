@@ -4,7 +4,7 @@
 
 - [x] PROMPT 0: Análise e Planejamento Inicial
 - [x] PROMPT 1: Estrutura Base e Configuração
-- [ ] PROMPT 2: Sistema de Layout e Navegação Desktop
+- [x] PROMPT 2: Sistema de Layout e Navegação Desktop
 - [ ] PROMPT 3: Sistema de Layout e Navegação Mobile
 - [ ] PROMPT 4: Context Global e Gerenciamento de Estado
 - [ ] PROMPT 5: Cards de Resumo Financeiro
@@ -251,6 +251,42 @@ src/
 - **Desktop (≥1280px):** nav em linha, conteúdo com max-w-[1400px] e px-8.
 - **Tablet (768–1279px):** nav com flex-wrap, px-6.
 - **Mobile (&lt;768px):** nav empilhada/embrulhada, px-4. (Sidebar e Header Mobile virão nos PROMPT 2–3.)
+
+---
+
+## PROMPT 2: Sistema de Layout e Navegação Desktop
+
+**Status:** ✅ Concluído  
+**Figma:** Sidebar [2006:2817](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2006-2817), [2005:2698](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2698)  
+**Build:** ✅ (1 tentativa)
+
+### Implementado
+
+- **Sidebar:** dois estados (expandido 256px / colapsado 80px), altura 100vh, `bg-secondary-900`. Expandido: logo "mycash+" + ícone, nomes das seções (Home, Objetivos, Cartões, Transações, Perfil), user (avatar + username + email). Colapsado: só ícone do logo, só ícones das seções, só avatar.
+- **Botão de alternância:** circular na borda direita (`-right-4`), borda `border-brand-200`, seta esquerda quando expandida e seta direita quando colapsada. `duration-300` na `width` da sidebar; o Main (flex-1) acompanha a mudança.
+- **Tooltips:** quando colapsada, ao passar o mouse no item aparece tooltip à direita com o nome da seção e delay de 350ms.
+- **Item ativo:** `bg-neutral-1100`, texto `text-neutral-0`, ícone `text-brand-600`. Inativos: fundo transparente, `text-neutral-600`.
+- **Layout:** `useMediaQuery('(min-width: 1280px)')` para mostrar Sidebar só em ≥1280px; &lt;1280px permanece a nav superior (PROMPT 3 trocará por HeaderMobile). Sidebar empurra o conteúdo (flex); transição `transition-[width] duration-300 ease-in-out`.
+
+### Tokens
+
+**Cores:** secondary-900, neutral-0, neutral-600, neutral-1100, brand-200, brand-600.  
+**Espaçamento:** space-4, space-8, space-12, space-16, space-24.  
+**Shape:** shape-16, rounded-full.  
+**Tipografia:** text-label-medium, text-paragraph-small.
+
+### Arquivos
+
+- `src/components/layout/Sidebar.tsx`
+- `src/components/layout/index.ts`
+- `src/hooks/useMediaQuery.ts`
+- `src/App.tsx` (Layout com Sidebar + nav condicional)
+
+### Responsividade (PROMPT 2)
+
+- **Desktop (≥1280px):** Sidebar visível (expandida ou colapsada), Main ao lado. Nav superior não renderiza.
+- **Tablet (&lt;1280px):** Sidebar não renderiza; nav superior + Main (comportamento provisório até PROMPT 3).
+- **Mobile (&lt;1280px):** idem tablet.
 
 ---
 
