@@ -1,4 +1,4 @@
-import { CreditCardsWidget, DashboardHeader, ExpensesByCategoryCarousel, FinancialFlowChart, SummaryCards, UpcomingExpensesWidget } from '@/components/dashboard';
+import { CreditCardsWidget, DashboardHeader, ExpensesByCategoryCarousel, FinancialFlowChart, SummaryCards, TransactionsTable, UpcomingExpensesWidget } from '@/components/dashboard';
 
 export function DashboardPage() {
   return (
@@ -24,6 +24,11 @@ export function DashboardPage() {
         <div className="min-h-0 min-w-0 h-full">
           <UpcomingExpensesWidget />
         </div>
+      </div>
+
+      {/* Extrato Detalhado (PROMPT 11) */}
+      <div className="mt-6">
+        <TransactionsTable />
       </div>
     </main>
   );

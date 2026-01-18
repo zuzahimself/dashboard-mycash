@@ -8,3 +8,4 @@ export { ExpensesByCategoryCarousel } from './ExpensesByCategoryCarousel';
 export { FinancialFlowChart, type FinancialFlowPoint } from './FinancialFlowChart';
 export { CreditCardsWidget } from './CreditCardsWidget';
 export { UpcomingExpensesWidget } from './UpcomingExpensesWidget';
+export { TransactionsTable } from './TransactionsTable';

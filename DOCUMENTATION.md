@@ -5,14 +5,14 @@
 - [x] PROMPT 0: Análise e Planejamento Inicial
 - [x] PROMPT 1: Estrutura Base e Configuração
 - [x] PROMPT 2: Sistema de Layout e Navegação Desktop
-- [ ] PROMPT 3: Sistema de Layout e Navegação Mobile
-- [ ] PROMPT 4: Context Global e Gerenciamento de Estado
-- [ ] PROMPT 5: Cards de Resumo Financeiro
-- [ ] PROMPT 6: Header do Dashboard com Controles
-- [ ] PROMPT 7: Carrossel de Gastos por Categoria
-- [ ] PROMPT 8: Gráfico de Fluxo Financeiro
-- [ ] PROMPT 9: Widget de Cartões de Crédito
-- [ ] PROMPT 10: Widget de Próximas Despesas
+- [x] PROMPT 3: Sistema de Layout e Navegação Mobile
+- [x] PROMPT 4: Context Global e Gerenciamento de Estado
+- [x] PROMPT 5: Cards de Resumo Financeiro
+- [x] PROMPT 6: Header do Dashboard com Controles
+- [x] PROMPT 7: Carrossel de Gastos por Categoria
+- [x] PROMPT 8: Gráfico de Fluxo Financeiro
+- [x] PROMPT 9: Widget de Cartões de Crédito
+- [x] PROMPT 10: Widget de Próximas Despesas
 - [ ] PROMPT 11: Tabela de Transações Detalhada
 - [ ] PROMPT 12: Modal de Nova Transação
 - [ ] PROMPT 13: Modal de Adicionar Membro
@@ -285,8 +285,186 @@ src/
 ### Responsividade (PROMPT 2)
 
 - **Desktop (≥1280px):** Sidebar visível (expandida ou colapsada), Main ao lado. Nav superior não renderiza.
-- **Tablet (&lt;1280px):** Sidebar não renderiza; nav superior + Main (comportamento provisório até PROMPT 3).
+- **Tablet (&lt;1280px):** Sidebar não renderiza; HeaderMobile + MenuDropdown (PROMPT 3).
 - **Mobile (&lt;1280px):** idem tablet.
+
+---
+
+## PROMPT 3: Sistema de Layout e Navegação Mobile
+
+**Status:** ✅ Concluído  
+**Figma:** [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **HeaderMobile:** fixo no topo (`fixed`), largura total, logo "Mycash+" à esquerda, avatar à direita. Visível em &lt;1024px (`useMediaQuery('(min-width: 1024px)')`). Avatar é trigger do MenuDropdown.
+- **MenuDropdown:** desliza de cima para baixo (animação), overlay escuro. Itens: Home, Objetivos, Cartões, Transações, Perfil (NavLink), botão "Sair" vermelho. Fechamento: clique em item, X, overlay. `animate-slide-up` e transições.
+- **App:** Sidebar só ≥1024px; HeaderMobile e `pt-14` no main quando &lt;1024px. Nunca os dois juntos.
+
+### Arquivos
+
+- `src/components/layout/HeaderMobile.tsx`
+- `src/components/layout/MenuDropdown.tsx`
+- `src/components/layout/index.ts`
+- `src/App.tsx`
+- `src/index.css` (`@keyframes slideUp`, `.animate-slide-up`)
+
+---
+
+## PROMPT 4: Context Global e Gerenciamento de Estado
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **FinanceProvider:** em `main.tsx`; 5 arrays: `transactions`, `goals`, `creditCards`, `bankAccounts`, `familyMembers`. CRUD para cada entidade.
+- **Filtros globais:** `selectedMember`, `dateRange` (startDate/endDate), `transactionType` ("all"|"income"|"expense"), `searchText`.
+- **Funções derivadas (aplicam filtros):** `getFilteredTransactions`, `calculateTotalBalance`, `calculateIncomeForPeriod`, `calculateExpensesForPeriod`, `calculateExpensesByCategory`, `getBalanceGrowthPercent` (mock).
+- **useFinance:** único ponto de acesso ao contexto. Sem localStorage/sessionStorage; dados em memória (useState).
+
+### Dados mock
+
+- Três membros da família, cartões (Nubank, Itaú, Bradesco, etc.), transações (incl. `isPaid: false` para Próximas despesas), objetivos, categorias brasileiras.
+
+### Arquivos
+
+- `src/contexts/FinanceContext.tsx`
+- `src/contexts/index.ts`
+- `src/main.tsx` (wrap em FinanceProvider)
+- `src/types/index.ts` (Transaction, Goal, CreditCard, BankAccount, FamilyMember)
+
+---
+
+## PROMPT 5: Cards de Resumo Financeiro
+
+**Status:** ✅ Concluído  
+**Figma:** [2012:2991](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2012-2991), [2006:6612](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2006-6612)  
+**Build:** ✅
+
+### Implementado
+
+- **SummaryCard:** estrutura unificada (Figma 2012-2991): ícone no topo, **Content** (título + valor com `gap-space-8`); `justify-between` para o espaço entre ícone e Content. `p-space-24`, `rounded-shape-16`, `border`, `bg-surface-500`. `h-full`, `flex-[1_0_0]`, `self-stretch` quando em grid com `items-stretch`.
+- **BalanceCard:** ícone $ (neutral), "Saldo total", `calculateTotalBalance`.
+- **IncomeCard:** ícone tendência alta (green-100/green-600), "Receitas", `calculateIncomeForPeriod`.
+- **ExpenseCard:** ícone tendência baixa (red-300/red-600), "Despesas", `calculateExpensesForPeriod`.
+- **SummaryCards:** grid `md:grid-cols-[2fr_1fr_1fr]`, `flex-1` `min-h-0` `grid-rows-[1fr]` para preencher altura (items-stretch na Dashboard). Mobile: 1 coluna.
+- **useCountUp:** animação de contagem nos valores (~800ms ease-out).
+
+### Arquivos
+
+- `src/components/dashboard/SummaryCard.tsx`
+- `src/components/dashboard/BalanceCard.tsx`
+- `src/components/dashboard/IncomeCard.tsx`
+- `src/components/dashboard/ExpenseCard.tsx`
+- `src/components/dashboard/SummaryCards.tsx`
+- `src/hooks/useCountUp.ts`
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 6: Header do Dashboard com Controles
+
+**Status:** ✅ Concluído  
+**Figma:** [2006:6654](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2006-6654), [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **DashboardHeader:** busca ("Pesquisar...") em tempo real → `searchText`; case-insensitive em descrição e categoria.
+- **Filtros:** botão ícone; desktop: FilterPopover (tipo: Todos, Receitas, Despesas); mobile: FilterModal (slide-up de baixo).
+- **Seletor de período:** "01 jan - 31 jan, 2024"; desktop: 2 meses lado a lado; mobile: 1 mês com setas. Atalhos: Este mês, Mês passado, Últimos 3 meses, Este ano. Atualiza `dateRange`.
+- **Membros da família:** avatares sobrepostos, clique para filtrar (borda preta/check), botão "+" abre AddMemberModal (nome, função, email, renda mensal). Validação e `addMember`.
+- **"Nova Transação":** botão preto, ícone "+"; mobile: largura total, altura maior.
+
+### Arquivos
+
+- `src/components/dashboard/DashboardHeader.tsx` (FilterContent, FilterModal, PeriodPicker, AddMemberModal)
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 7: Carrossel de Gastos por Categoria
+
+**Status:** ✅ Concluído  
+**Figma:** [2006:6612](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2006-6612), [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **ExpensesByCategoryCarousel:** `calculateExpensesByCategory`, `calculateIncomeForPeriod`; % em relação à receita. Scroll horizontal (wheel, drag, touch). Setas flutuantes no hover (desktop), delay para evitar flicker; gradiente de fade nas bordas; `isAtStart` para ocultar fade à esquerda no início.
+- **CategoryDonutCard:** 160px, donut (anel colorido, % no centro), nome da categoria, valor. `CATEGORY_RING_COLORS`. Hover: borda `brand-600`.
+
+### Arquivos
+
+- `src/components/dashboard/ExpensesByCategoryCarousel.tsx`
+- `src/components/dashboard/CategoryDonutCard.tsx`
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 8: Gráfico de Fluxo Financeiro
+
+**Status:** ✅ Concluído  
+**Figma:** [2008:677](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2008-677), [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **FinancialFlowChart (Recharts):** título "Fluxo Financeiro" + ícone, legenda (Receitas verde-limão, Despesas preto). AreaChart: X (meses abreviados), Y (R$ 2k, 4k…), grid horizontal tracejado. Duas Area: Receitas (borda brand-600, gradiente) e Despesas (borda secondary-900, gradiente). CustomTooltip com linha vertical. Dados mock 7 meses; estrutura para agregação futura.
+- **Altura:** `flex-1` + `minHeight: 300` para igualar à altura do card Próximas despesas (`items-stretch` na grid). `h-full` no article.
+
+### Arquivos
+
+- `src/components/dashboard/FinancialFlowChart.tsx`
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 9: Widget de Cartões de Crédito
+
+**Status:** ✅ Concluído  
+**Figma:** [2006:6816](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2006-6816), [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **CreditCardsWidget:** fundo branco, borda, header "Cartões & Contas", ícone, botão "+" (NewCardModal), setas de paginação no header (&gt;3 cartões). Lista: ícone 16px + nome do banco, fatura atual, "Vence dia DD", "•••• {lastDigits}". `border-b` entre itens, `hover:bg-neutral-200/50`. Clique: CardDetailsModal.
+- **NewCardModal:** nome, dia fechamento/vencimento, limite, fatura atual, últimos 4 dígitos; parse moeda BR. Adiciona a `creditCards`.
+- **CardDetailsModal:** limite, fatura, titular, "Fechar".
+
+### Arquivos
+
+- `src/components/dashboard/CreditCardsWidget.tsx` (NewCardModal, CardDetailsModal)
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 10: Widget de Próximas Despesas
+
+**Status:** ✅ Concluído  
+**Figma:** [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **UpcomingExpensesWidget:** fundo branco, header "Próximas despesas", ícone carteira, botão "+" (NewTransactionModal). Lista de `type === 'expense'` e `!isPaid`, ordenada por data. Cada item: descrição, "Vence dia DD/MM", conta/cartão, valor, botão check (32px). Check: `updateTransaction` (isPaid), animação de saída; se `isRecurring`, `addTransaction` com `date: getNextRecurrenceDate(t.date)`; toast "Despesa marcada como paga!". Estado vazio: ícone check verde, "Nenhuma despesa pendente", borda tracejada.
+- **NewTransactionModal:** campos para nova despesa (descrição, valor, vencimento, conta/cartão, categoria); `addTransaction` com `type: 'expense'`, `isPaid: false`.
+
+### Arquivos
+
+- `src/components/dashboard/UpcomingExpensesWidget.tsx` (ExpenseRow, NewTransactionModal)
+- `src/contexts/FinanceContext.tsx` (getNextRecurrenceDate, mocks `isPaid: false`)
+- `src/components/dashboard/index.ts`
+
+---
+
+## Ajustes e refinamentos (pós-prompts)
+
+- **Sidebar:** `position: fixed`, `z-20`; `marginLeft` no App conforme `SIDEBAR_WIDTH_EXPANDED`/`SIDEBAR_WIDTH_COLLAPSED`; logos `/logo-full.svg`, `/logo-icon.svg` em `public/`.
+- **DashboardPage:** layout em 2 grids: (1) Carousel + SummaryCards | CreditCardsWidget; (2) FinancialFlowChart | UpcomingExpensesWidget. `items-stretch` em ambas; `pb-8` no main. Coluna esquerda com `min-h-0` e `flex-1` em SummaryCards para preencher altura.
+- **FinancialFlowChart / UpcomingExpensesWidget:** `h-full` para mesma altura entre os dois cards.
 
 ---
 
