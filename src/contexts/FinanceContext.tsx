@@ -47,6 +47,7 @@ const MOCK_CARDS: CreditCard[] = [
   { id: 'cc1', name: 'Nubank', holderId: 'fm1', closingDay: 15, dueDay: 22, limit: 8000, currentBill: 2100, theme: 'black', lastDigits: '1234' },
   { id: 'cc2', name: 'Itaú', holderId: 'fm2', closingDay: 10, dueDay: 17, limit: 5000, currentBill: 890, theme: 'lime', lastDigits: '5678' },
   { id: 'cc3', name: 'Bradesco', holderId: 'fm1', closingDay: 5, dueDay: 12, limit: 6000, currentBill: 0, theme: 'white', lastDigits: '9012' },
+  { id: 'cc4', name: 'C6 Bank', holderId: 'fm1', closingDay: 8, dueDay: 15, limit: 10000, currentBill: 3200, theme: 'black', lastDigits: '4567' },
 ];
 
 const MOCK_ACCOUNTS: BankAccount[] = [
@@ -83,6 +84,8 @@ const MOCK_TRANSACTIONS: Transaction[] = (() => {
   const list: Transaction[] = [];
   const acc = [...MOCK_ACCOUNTS.map(a => a.id), ...MOCK_CARDS.map(c => c.id)];
   const members: (string | null)[] = ['fm1', 'fm2', 'fm3', null];
+  const n = new Date();
+  const fmt = (day: number) => `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   for (let i = 0; i < 28; i++) {
     const isIncome = i < 4 || (i > 10 && i < 14);
     const category = isIncome ? 'Salário' : pick(CATEGORIAS_BR.filter(c => c !== 'Salário'));
@@ -102,6 +105,13 @@ const MOCK_TRANSACTIONS: Transaction[] = (() => {
       isPaid: true,
     });
   }
+  // Despesas pendentes (isPaid: false) para o widget Próximas despesas
+  list.push(
+    { id: 'tx-p1', type: 'expense', value: 150, description: 'Luz', category: 'Contas', date: fmt(25), accountId: 'ba1', memberId: 'fm1', installments: 1, status: 'completed', isRecurring: true, isPaid: false },
+    { id: 'tx-p2', type: 'expense', value: 55, description: 'Netflix', category: 'Lazer', date: fmt(12), accountId: 'cc1', memberId: 'fm1', installments: 1, status: 'completed', isRecurring: true, isPaid: false },
+    { id: 'tx-p3', type: 'expense', value: 120, description: 'Academia', category: 'Saúde', date: fmt(18), accountId: 'ba2', memberId: 'fm2', installments: 1, status: 'completed', isRecurring: false, isPaid: false },
+    { id: 'tx-p4', type: 'expense', value: 90, description: 'Conta de água', category: 'Contas', date: fmt(8), accountId: 'cc2', memberId: 'fm2', installments: 1, status: 'completed', isRecurring: true, isPaid: false },
+  );
   return list.sort((a, b) => b.date.localeCompare(a.date));
 })();
 

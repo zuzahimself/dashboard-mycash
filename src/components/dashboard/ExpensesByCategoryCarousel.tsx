@@ -1,24 +1,26 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { useFinance } from '@/contexts';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { CategoryDonutCard, CATEGORY_RING_COLORS } from './CategoryDonutCard';
 
 const SCROLL_STEP = 200;
+const FADE_THRESHOLD = 2;
+const HOVER_HIDE_DELAY_MS = 400;
 
 export function ExpensesByCategoryCarousel() {
   const { calculateExpensesByCategory, calculateIncomeForPeriod } = useFinance();
   const isMobile = useMediaQuery('(max-width: 767px)');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const hoverHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const [isAtStart, setIsAtStart] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, scroll: 0 });
-  const hasMoved = useRef(false);
 
   const byCat = calculateExpensesByCategory();
   const income = calculateIncomeForPeriod();
   const entries = Object.entries(byCat).sort(([, a], [, b]) => b - a);
 
-  // % em relação à receita total; se receita zero, 0%
   const getPercent = useCallback(
     (value: number) => (income <= 0 ? 0 : (value / income) * 100),
     [income]
@@ -28,6 +30,20 @@ export function ExpensesByCategoryCarousel() {
     const el = scrollRef.current;
     if (el) el.scrollLeft += dx;
   };
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setIsAtStart(el.scrollLeft <= FADE_THRESHOLD);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    el.addEventListener('scroll', updateScrollState);
+    return () => el.removeEventListener('scroll', updateScrollState);
+  }, [updateScrollState]);
 
   const onWheel = (e: React.WheelEvent) => {
     const el = scrollRef.current;
@@ -41,7 +57,6 @@ export function ExpensesByCategoryCarousel() {
 
   const onMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
-    hasMoved.current = false;
     dragStart.current = { x: e.clientX, scroll: scrollRef.current?.scrollLeft ?? 0 };
     setIsDragging(true);
   };
@@ -49,27 +64,38 @@ export function ExpensesByCategoryCarousel() {
   const onMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     const dx = e.clientX - dragStart.current.x;
-    if (Math.abs(dx) > 4) hasMoved.current = true;
     if (scrollRef.current) scrollRef.current.scrollLeft = dragStart.current.scroll - dx;
   };
 
   const onMouseUp = () => setIsDragging(false);
-  const onMouseLeave = () => {
+
+  const onMouseEnter = useCallback(() => {
+    if (hoverHideRef.current) {
+      clearTimeout(hoverHideRef.current);
+      hoverHideRef.current = null;
+    }
+    setIsHovering(true);
+  }, []);
+
+  const onMouseLeave = useCallback(() => {
     setIsDragging(false);
-    setIsHovering(false);
-  };
+    if (hoverHideRef.current) clearTimeout(hoverHideRef.current);
+    hoverHideRef.current = setTimeout(() => setIsHovering(false), HOVER_HIDE_DELAY_MS);
+  }, []);
+
+  useEffect(() => () => { if (hoverHideRef.current) clearTimeout(hoverHideRef.current); }, []);
 
   if (entries.length === 0) return null;
 
   return (
     <section
       className="relative w-full"
-      onMouseEnter={() => setIsHovering(true)}
+      onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* Máscara de gradiente nas bordas */}
+      {/* Fade esquerdo: escondido quando o primeiro card está à esquerda (scroll no início) */}
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 w-6 z-10 bg-gradient-to-r from-background-300 to-transparent"
+        className={`pointer-events-none absolute inset-y-0 left-0 w-6 z-10 bg-gradient-to-r from-background-300 to-transparent transition-opacity duration-200 ${isAtStart ? 'opacity-0' : 'opacity-100'}`}
         aria-hidden
       />
       <div
@@ -77,7 +103,6 @@ export function ExpensesByCategoryCarousel() {
         aria-hidden
       />
 
-      {/* Área rolável: wheel horizontal, drag */}
       <div
         ref={scrollRef}
         onWheel={onWheel}
@@ -98,13 +123,12 @@ export function ExpensesByCategoryCarousel() {
         ))}
       </div>
 
-      {/* Setas flutuantes: só quando mouse sobre a área e não-mobile; ~200px deslocamento */}
       {!isMobile && isHovering && (
-        <>
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-1 z-20">
           <button
             type="button"
             onClick={() => scroll(-SCROLL_STEP)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-surface-500 border border-neutral-300 shadow flex items-center justify-center text-neutral-600 hover:bg-neutral-200 hover:border-neutral-400 transition-colors"
+            className="pointer-events-auto w-10 h-10 rounded-full bg-surface-500 border border-neutral-300 shadow flex items-center justify-center text-neutral-600 hover:bg-neutral-200 hover:border-neutral-400 transition-colors flex-shrink-0"
             aria-label="Rolar para a esquerda"
           >
             <IconChevronLeft className="w-5 h-5" />
@@ -112,12 +136,12 @@ export function ExpensesByCategoryCarousel() {
           <button
             type="button"
             onClick={() => scroll(SCROLL_STEP)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-surface-500 border border-neutral-300 shadow flex items-center justify-center text-neutral-600 hover:bg-neutral-200 hover:border-neutral-400 transition-colors"
+            className="pointer-events-auto w-10 h-10 rounded-full bg-surface-500 border border-neutral-300 shadow flex items-center justify-center text-neutral-600 hover:bg-neutral-200 hover:border-neutral-400 transition-colors flex-shrink-0"
             aria-label="Rolar para a direita"
           >
             <IconChevronRight className="w-5 h-5" />
           </button>
-        </>
+        </div>
       )}
     </section>
   );
