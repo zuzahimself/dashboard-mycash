@@ -12,3 +12,11 @@
     @apply bg-background-300 text-neutral-1100 antialiased;
   }
 }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}

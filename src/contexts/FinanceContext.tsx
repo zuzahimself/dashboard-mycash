@@ -146,6 +146,7 @@ interface FinanceContextValue {
   calculateExpensesByCategory: () => Record<string, number>;
   calculateCategoryPercentage: (category: string) => number;
   calculateSavingsRate: () => number;
+  getBalanceGrowthPercent: () => number; // % vs mês anterior (mock por enquanto)
 }
 
 const FinanceContext = createContext<FinanceContextValue | null>(null);
@@ -279,6 +280,11 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return ((income - expenses) / income) * 100;
   }, [calculateIncomeForPeriod, calculateExpensesForPeriod]);
 
+  const getBalanceGrowthPercent = useCallback((): number => {
+    // TODO: comparar saldo do mês atual vs anterior; por enquanto mock
+    return 12;
+  }, []);
+
   const value = useMemo<FinanceContextValue>(
     () => ({
       transactions,
@@ -316,6 +322,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       calculateExpensesByCategory,
       calculateCategoryPercentage,
       calculateSavingsRate,
+      getBalanceGrowthPercent,
     }),
     [
       transactions,
@@ -349,6 +356,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       calculateExpensesByCategory,
       calculateCategoryPercentage,
       calculateSavingsRate,
+      getBalanceGrowthPercent,
     ]
   );
 

@@ -1,4 +1,1 @@
-/**
- * Hooks customizados (useFinance, etc.)
- */
-export {};
+export { useCountUp } from './useCountUp';
