@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { ROUTES } from './constants';
-import { Sidebar, HeaderMobile } from './components/layout';
+import { Sidebar, HeaderMobile, SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED } from './components/layout';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import {
   DashboardPage,
@@ -20,7 +20,10 @@ function AppLayout() {
       {isDesktop && (
         <Sidebar isExpanded={sidebarExpanded} onToggle={() => setSidebarExpanded((s) => !s)} />
       )}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div
+        className="flex min-w-0 flex-1 flex-col"
+        style={{ marginLeft: isDesktop ? (sidebarExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED) : 0 }}
+      >
         {!isDesktop && <HeaderMobile />}
         <main className={`flex-1 w-full ${!isDesktop ? 'pt-14' : ''}`}>
           <Outlet />

@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 
-const SIDEBAR_WIDTH_EXPANDED = 256;
-const SIDEBAR_WIDTH_COLLAPSED = 80;
+export const SIDEBAR_WIDTH_EXPANDED = 256;
+export const SIDEBAR_WIDTH_COLLAPSED = 80;
 const TOOLTIP_DELAY_MS = 350;
 
 interface NavItem {
@@ -45,7 +45,7 @@ export function Sidebar({ isExpanded, onToggle }: SidebarProps) {
 
   return (
     <aside
-      className="h-screen flex-shrink-0 bg-surface-500 flex flex-col overflow-visible transition-[width] duration-300 ease-in-out relative"
+      className="fixed top-0 left-0 z-20 flex h-screen flex-col overflow-visible bg-surface-500 transition-[width] duration-300 ease-in-out"
       style={{ width }}
     >
       {/* Logo — logo-full.svg (aberta), logo-icon.svg (fechada) */}
