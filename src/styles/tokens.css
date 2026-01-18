@@ -1,0 +1,55 @@
+/**
+ * Tokens do design system — Figma (node 2005:2678)
+ * Ordem: 1º semântica, 2º primitiva, 3º conversão. Nunca hardcode.
+ * Usados pelo Tailwind e por componentes via var().
+ */
+:root {
+  /* Cores – primitivas */
+  --color-brand-200: #f3ffb1;
+  --color-brand-600: #d7fe03;
+  --color-brand-700: #c4e703;
+  --color-neutral-0: #ffffff;
+  --color-neutral-200: #f3f4f6;
+  --color-neutral-300: #e5e7eb;
+  --color-neutral-400: #d1d5db;
+  --color-neutral-600: #6b7280;
+  --color-neutral-1100: #080b12;
+  --color-secondary-400: #414652;
+  --color-secondary-900: #070A10;
+  --color-green-100: #e8f9f2;
+  --color-green-500: #44cb93;
+  --color-green-600: #38BB82;
+  --color-red-300: #f5a5ad;
+  --color-red-600: #D85E6D;
+  --color-icon-default: #171719;
+
+  /* Cores – semânticas (alias) */
+  --color-surface: var(--color-surface-500);
+  --color-surface-500: #FFFFFF;
+  --color-background: var(--color-background-300);
+  --color-background-300: #F7F8F9;
+
+  /* Espaçamento */
+  --space-0: 0;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-56: 56px;
+
+  /* Shape */
+  --shape-16: 16px;
+  --shape-100: 100px;
+
+  /* Size */
+  --size-24: 24px;
+  --size-40: 40px;
+
+  /* Sombras */
+  --shadow-brand-16: #dffe3529;
+  --shadow-neutral-4: #1118270a;
+}
