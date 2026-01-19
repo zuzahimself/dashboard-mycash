@@ -13,16 +13,16 @@
 - [x] PROMPT 8: Gráfico de Fluxo Financeiro
 - [x] PROMPT 9: Widget de Cartões de Crédito
 - [x] PROMPT 10: Widget de Próximas Despesas
-- [ ] PROMPT 11: Tabela de Transações Detalhada
-- [ ] PROMPT 12: Modal de Nova Transação
-- [ ] PROMPT 13: Modal de Adicionar Membro
-- [ ] PROMPT 14: Modal de Adicionar Cartão
-- [ ] PROMPT 15: Modal de Detalhes do Cartão
-- [ ] PROMPT 16: Modal de Filtros Mobile
-- [ ] PROMPT 17: View Completa de Cartões
-- [ ] PROMPT 18: View Completa de Transações
-- [ ] PROMPT 19: View de Perfil — Aba Informações
-- [ ] PROMPT 20: View de Perfil — Aba Configurações
+- [x] PROMPT 11: Tabela de Transações Detalhada
+- [x] PROMPT 12: Modal de Nova Transação
+- [x] PROMPT 13: Modal de Adicionar Membro
+- [x] PROMPT 14: Modal de Adicionar Cartão
+- [x] PROMPT 15: Modal de Detalhes do Cartão
+- [x] PROMPT 16: Modal de Filtros Mobile
+- [x] PROMPT 17: View Completa de Cartões
+- [x] PROMPT 18: View Completa de Transações
+- [x] PROMPT 19: View de Perfil — Aba Informações
+- [x] PROMPT 20: View de Perfil — Aba Configurações
 - [ ] PROMPT 21: Animações e Transições Globais
 - [ ] PROMPT 22: Formatação e Utilitários
 - [ ] PROMPT 23: Responsividade e Ajustes Finais
@@ -373,14 +373,14 @@ src/
 ### Implementado
 
 - **DashboardHeader:** busca ("Pesquisar...") em tempo real → `searchText`; case-insensitive em descrição e categoria.
-- **Filtros:** botão ícone; desktop: FilterPopover (tipo: Todos, Receitas, Despesas); mobile: FilterModal (slide-up de baixo).
+- **Filtros:** botão ícone; desktop: FilterPopover (tipo: Todos, Receitas, Despesas); mobile: FiltersMobileModal (PROMPT 16; slide-in de baixo, tipo + membro + período, "Aplicar Filtros").
 - **Seletor de período:** "01 jan - 31 jan, 2024"; desktop: 2 meses lado a lado; mobile: 1 mês com setas. Atalhos: Este mês, Mês passado, Últimos 3 meses, Este ano. Atualiza `dateRange`.
-- **Membros da família:** avatares sobrepostos, clique para filtrar (borda preta/check), botão "+" abre AddMemberModal (nome, função, email, renda mensal). Validação e `addMember`.
+- **Membros da família:** avatares sobrepostos, clique para filtrar (borda preta/check), botão "+" abre AddMemberModal (ver PROMPT 13: nome, função, avatar opcional, renda). Validação e `addFamilyMember`; `onMemberAdded` para toast.
 - **"Nova Transação":** botão preto, ícone "+"; mobile: largura total, altura maior.
 
 ### Arquivos
 
-- `src/components/dashboard/DashboardHeader.tsx` (FilterContent, FilterModal, PeriodPicker, AddMemberModal)
+- `src/components/dashboard/DashboardHeader.tsx` (FilterContent, PeriodPicker, import AddMemberModal, import FiltersMobileModal para mobile)
 - `src/components/dashboard/index.ts`
 
 ---
@@ -430,13 +430,12 @@ src/
 
 ### Implementado
 
-- **CreditCardsWidget:** fundo branco, borda, header "Cartões & Contas", ícone, botão "+" (NewCardModal), setas de paginação no header (&gt;3 cartões). Lista: ícone 16px + nome do banco, fatura atual, "Vence dia DD", "•••• {lastDigits}". `border-b` entre itens, `hover:bg-neutral-200/50`. Clique: CardDetailsModal.
-- **NewCardModal:** nome, dia fechamento/vencimento, limite, fatura atual, últimos 4 dígitos; parse moeda BR. Adiciona a `creditCards`.
-- **CardDetailsModal:** limite, fatura, titular, "Fechar".
+- **CreditCardsWidget:** fundo branco, borda, header "Cartões & Contas", ícone, botão "+" (AddAccountCardModal desde PROMPT 14), setas de paginação no header (&gt;3 cartões). Lista: ícone 16px + nome do banco, fatura atual, "Vence dia DD", "•••• {lastDigits}". `border-b` entre itens, `hover:bg-neutral-200/50`. Clique: CardDetailsModal (componente extraído em PROMPT 15). Props: `onAccountCardAdded`, `onAddExpense`.
+- **AddAccountCardModal (PROMPT 14):** substitui NewCardModal; toggle Conta/Cartão, temas. **CardDetailsModal (PROMPT 15):** componente em arquivo próprio; grid infos, barra de uso, tabela despesas, Ver Extrato, Adicionar Despesa, Editar, Fechar.
 
 ### Arquivos
 
-- `src/components/dashboard/CreditCardsWidget.tsx` (NewCardModal, CardDetailsModal)
+- `src/components/dashboard/CreditCardsWidget.tsx` (usa AddAccountCardModal, CardDetailsModal importado)
 - `src/components/dashboard/index.ts`
 
 ---
@@ -460,11 +459,183 @@ src/
 
 ---
 
+## PROMPT 11: Tabela de Transações Detalhada
+
+**Status:** ✅ Concluído  
+**Figma:** [2005:2678](https://www.figma.com/design/y5QghxUMSRQwBggcYYpzgh/Workshop---Do-figma-MCP-ao-Cursor-AI-v.2--Community-?node-id=2005-2678)  
+**Build:** ✅
+
+### Implementado
+
+- **TransactionsTable:** header "Extrato Detalhado", busca local, select tipo (Todos/Receitas/Despesas). Tabela 7 colunas: Membro (avatar/inicial 24px), Data, Descrição (ícone+texto), Categoria (badge), Conta/Cartão, Parcelas, Valor. Zebra, hover. Filtros combinados (globais + localSearch, localType). Ordenação por data desc. Paginação 5/página, "Mostrando X a Y de Z", Anterior/números/Próxima; scroll suave ao trocar página. Empty: "Nenhum lançamento encontrado."
+
+### Arquivos
+
+- `src/components/dashboard/TransactionsTable.tsx`
+- `src/index.css` (`@keyframes fadeIn`, `.animate-fade-in`)
+
+---
+
+## PROMPT 12: Modal de Nova Transação
+
+**Status:** ✅ Concluído  
+**Build:** ✅ (wireframes Figma 0:3311, 0:3645, 0:3572, 0:3722)
+
+### Implementado
+
+- **NewTransactionModalFull:** fullscreen, header fixo (ícone 64px, "Nova Transação", X 48px). Toggle Receita | Despesa. Campos: Valor (R$, 56px), Descrição (min 3), Categoria (select + "Nova Categoria"), Membro, Conta/Cartão (optgroup), Data, Parcelamento (1–12x, só despesa+cartão; desliga se recorrente), Recorrente (só despesa; desliga se parcelas &gt;1). Validação; `addTransaction`; toast. Conteúdo centralizado (`max-w-xl`), inputs `bg-surface-500`. Prop **initialAccountId** para pré-preencher ao abrir de "Adicionar Despesa" (CardDetailsModal).
+
+### Arquivos
+
+- `src/components/dashboard/NewTransactionModalFull.tsx`
+- `src/pages/DashboardPage.tsx` (estado, toast, integração)
+
+---
+
+## PROMPT 13: Modal de Adicionar Membro
+
+**Status:** ✅ Concluído  
+**Build:** ✅ (wireframe Figma 0:3532)
+
+### Implementado
+
+- **AddMemberModal** (extraído do DashboardHeader): overlay, modal centralizado. Header "Adicionar Membro da Família", X. Campos: Nome completo (obrigatório, min 3), Função na família (obrigatório, select: Pai, Mãe, Filho, Filha, Avô, Avó, Tio, Tia), Avatar opcional (abas **URL** e **Upload** — JPG/PNG, máx 5MB; validação de tipo/tamanho), Renda mensal (opcional, moeda pt-BR). Footer: Cancelar, "Adicionar Membro". Validação; `addFamilyMember`; toast "Membro adicionado com sucesso!". DashboardHeader passa `onMemberAdded`; DashboardPage exibe o toast.
+
+### Arquivos
+
+- `src/components/dashboard/AddMemberModal.tsx` (export `AddMemberFormData`)
+- `src/components/dashboard/DashboardHeader.tsx` (import, `onMemberAdded`)
+- `src/pages/DashboardPage.tsx` (`onMemberAdded` → setToast)
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 14: Modal de Adicionar Conta/Cartão
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **AddAccountCardModal:** modal 500–600px (90% mobile), overlay. Header "Adicionar Conta/Cartão", X. Toggle **Conta Bancária** | **Cartão de Crédito** (selecionado preto/branco). Campos comuns: Nome (obrigatório, min 3; label por tipo), Titular (select membros). **Conta:** Saldo inicial (moeda). **Cartão:** Dia fechamento/vencimento (1–31), Limite total (&gt;0), Últimos 4 dígitos (opcional, exatamente 4), **Tema visual** (3 cards clicáveis Black, Lime, White; selecionado borda azul). Validação por tipo; `addBankAccount` ou `addCreditCard` (currentBill 0 em cartão novo); toast "Conta/Cartão adicionado com sucesso!". **CreditCardsWidget:** substitui NewCardModal por AddAccountCardModal; `onAccountCardAdded`, `onAddExpense`; integração em DashboardPage e CartoesPage.
+
+### Arquivos
+
+- `src/components/dashboard/AddAccountCardModal.tsx`
+- `src/components/dashboard/CreditCardsWidget.tsx` (remove NewCardModal)
+- `src/components/dashboard/index.ts`
+- `src/pages/DashboardPage.tsx` (toast, onAccountCardAdded)
+
+---
+
+## PROMPT 15: Modal de Detalhes do Cartão
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **CardDetailsModal** (extraído para `CardDetailsModal.tsx`): modal maior. Header: nome do cartão, X. **Área informações:** grid 2–3 col (1 mobile): Limite total, Fatura atual, Limite disponível, % uso, Dia fechamento/vencimento, •••• 1234. Cada um em card (label cinza, valor negrito). **Barra de progresso** do uso (vermelha). **Tabela de despesas:** `type=expense` e `accountId=cartão`; colunas Data, Descrição, Categoria, Parcelas, Valor; paginação 10/pg; empty "Nenhuma despesa registrada neste cartão ainda." **Botões:** "Ver Extrato Completo" (navega `/transacoes` com `state.accountId`), "Adicionar Despesa" (abre NewTransactionModalFull com `initialAccountId`), "Editar Cartão" (por enquanto fecha), "Fechar". Usado em CreditCardsWidget e em CardsView.
+
+### Arquivos
+
+- `src/components/dashboard/CardDetailsModal.tsx`
+- `src/components/dashboard/CreditCardsWidget.tsx` (import, `onAddExpense`, `onEditCard`)
+- `src/components/dashboard/NewTransactionModalFull.tsx` (prop `initialAccountId`)
+- `src/pages/DashboardPage.tsx` (`addExpenseForAccountId`, onAddExpense → CreditCardsWidget)
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 16: Modal de Filtros Mobile
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **FiltersMobileModal:** abre ao tocar no botão de filtros no header (mobile). **Entrada:** slide-in de baixo (`translateY 100%` → 0, 300ms `animate-slide-up`). **Fechamento:** "Aplicar Filtros" → copia estado para contexto (`transactionType`, `selectedMember`, `dateRange`) e slide-out (`animate-slide-down` 300ms); X ou overlay → fecha sem aplicar. Header fixo: "Filtros", X (área toque ≥44x44). Conteúdo scrollável: **Tipo de Transação** (grid 3 col, 48px: Todos, Receitas, Despesas; selecionado preto/branco); **Membro da Família** (Todos + pills com avatar 32px e nome, 48px; selecionado preto); **Período** (calendário 1 mês, setas, seleção de intervalo). Footer: botão "Aplicar Filtros" (56px, preto, largura total). Estado temporário no componente; ao aplicar, `setTransactionType`, `setSelectedMember`, `setDateRange`. **DashboardHeader:** em mobile, FilterModal substituído por FiltersMobileModal.
+
+### Arquivos
+
+- `src/components/dashboard/FiltersMobileModal.tsx`
+- `src/components/dashboard/DashboardHeader.tsx` (import, troca FilterModal)
+- `src/index.css` (`@keyframes slideDown`, `.animate-slide-down`)
+
+---
+
+## PROMPT 17: View Completa de Cartões
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **CardsView** em **CartoesPage:** header "Cartões de Crédito", select ordenar (fatura decrescente ou alfabética), botão "Novo Cartão" (preto, +). Grid: mobile 1 col, tablet 2, desktop 3. Cada **card:** nome em negrito, ícone tema, •••• 1234; limites, fatura, disponível, % uso; barra de progresso; datas fechamento/vencimento; botões "Ver Detalhes", "Adicionar Despesa". Hover: card eleva e sombra. Clique no card abre CardDetailsModal. **Empty:** ícone cartão cinza, "Nenhum cartão cadastrado", "Cadastrar Primeiro Cartão". AddAccountCardModal e CardDetailsModal internos; `onAddExpense` e `onAccountCardAdded` repassados pela página. **CartoesPage:** NewTransactionModalFull para "Adicionar Despesa", toast.
+
+### Arquivos
+
+- `src/components/dashboard/CardsView.tsx`
+- `src/pages/CartoesPage.tsx`
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 18: View Completa de Transações
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **TransactionsView** em **TransacoesPage:** header "Transações", "Nova Transação". **Barra de filtros** (horizontal desktop, wrap mobile): busca, tipo, categoria, conta/cartão, membro, período (date start/end), status (Todos, Concluído, Pendente). AND com filtros globais (`getFilteredTransactions` + filtros locais). **Linha de resumo:** total receitas, total despesas, diferença (verde/vermelho), quantidade de transações. **Tabela:** 10/página, ordenação clicável em Data e Valor (seta ↑/↓), **Exportar CSV** (download). Empty: "Nenhuma transação registrada ainda" + botão "Nova Transação". `location.state?.accountId` (vindo de "Ver Extrato" do CardDetailsModal) pré-preenche filtro de conta. NewTransactionModalFull na página.
+
+### Arquivos
+
+- `src/components/dashboard/TransactionsView.tsx`
+- `src/pages/TransacoesPage.tsx`
+- `src/components/dashboard/index.ts`
+
+---
+
+## PROMPT 19: View de Perfil — Aba Informações
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **PerfilPage** com abas **"Informações"** e **"Configurações"**; ao entrar, Informações ativa. Abas com borda inferior na ativa. **Aba Informações:** **Card de perfil:** avatar 120px, nome, função, email, renda formatada; botão "Editar Perfil". **Card "Membros da Família":** lista (avatar 48px, nome, função, renda; fundo cinza claro; hover; clicável). Se só um membro: mensagem + "Adicionar Membro da Família"; senão, lista + botão "Adicionar Membro da Família". **AddMemberModal** integrado; toast ao adicionar. **Botão "Sair"** vermelho com ícone logout. Dados: `familyMembers[0]` como usuário principal.
+
+### Arquivos
+
+- `src/pages/PerfilPage.tsx`
+- `src/components/dashboard/AddMemberModal.tsx` (reutilizado)
+
+---
+
+## PROMPT 20: View de Perfil — Aba Configurações
+
+**Status:** ✅ Concluído  
+**Build:** ✅
+
+### Implementado
+
+- **Aba Configurações** em PerfilPage. **Preferências de Exibição:** toggle "Modo Escuro" (desabilitado, "Em breve"), select moeda "Real (R$)", select data "DD/MM/AAAA". **Notificações:** toggles (lembrete vencimento, alerta limite, resumo e-mail, objetivos alcançados) — estado visual local. **Gerenciar Categorias:** Receita e Despesa com listas (Salário, Alimentação, etc.), "Adicionar Categoria". **Dados e Privacidade:** "Exportar JSON" e "Exportar CSV" (dados do contexto: transactions, goals, creditCards, bankAccounts, familyMembers); "Limpar Todos os Dados" (vermelho, confirmação em 2 cliques), texto "Esta ação não pode ser desfeita". **FinanceContext:** `clearAllData` (limpa arrays e filtros). **Sobre o mycash+:** versão "v1.0.0", descrição, links Termos e Política. Layout: cards verticais; desktop alguns em 2 colunas (`md:grid-cols-2`).
+
+### Arquivos
+
+- `src/pages/PerfilPage.tsx`
+- `src/contexts/FinanceContext.tsx` (`clearAllData`)
+
+---
+
 ## Ajustes e refinamentos (pós-prompts)
 
 - **Sidebar:** `position: fixed`, `z-20`; `marginLeft` no App conforme `SIDEBAR_WIDTH_EXPANDED`/`SIDEBAR_WIDTH_COLLAPSED`; logos `/logo-full.svg`, `/logo-icon.svg` em `public/`.
 - **DashboardPage:** layout em 2 grids: (1) Carousel + SummaryCards | CreditCardsWidget; (2) FinancialFlowChart | UpcomingExpensesWidget. `items-stretch` em ambas; `pb-8` no main. Coluna esquerda com `min-h-0` e `flex-1` em SummaryCards para preencher altura.
 - **FinancialFlowChart / UpcomingExpensesWidget:** `h-full` para mesma altura entre os dois cards.
+- **Sessão PROMPT 13–20:** AddMemberModal extraído (avatar URL/Upload; PROMPT 6 passou a usá-lo via import). CreditCardsWidget: NewCardModal substituído por AddAccountCardModal; CardDetailsModal extraído para `CardDetailsModal.tsx` e reutilizado em CardsView. DashboardHeader (mobile): FilterModal trocado por FiltersMobileModal. NewTransactionModalFull: prop `initialAccountId` para "Adicionar Despesa" a partir do CardDetails. FinanceContext: `clearAllData` para Perfil → Configurações.
 
 ---
 
